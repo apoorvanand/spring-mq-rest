@@ -21,6 +21,7 @@ public class Runner implements CommandLineRunner {
     private final RabbitTemplate rabbitTemplate;
     private final Receiver receiver;
     private String server = "https://locale-apoorvanand.b542.starter-us-east-2a.openshiftapps.com/search/";
+    private String server1 = "https://www.goodreads.com/book/isbn/0441172717?key=lTgEXm5uzTMM3gI8ZAw";
   private RestTemplate rest;
   private HttpHeaders headers;
 
@@ -32,9 +33,15 @@ public class Runner implements CommandLineRunner {
     headers.add("Content-Type", "application/json");
     headers.add("Accept", "*/*");
     }
-    public String get() {
+    public String getPlaces() {
         HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
         ResponseEntity<String> responseEntity = rest.exchange(server+getRandomIntegerBetweenRange(1,100), HttpMethod.GET, requestEntity, String.class);
+       // this.setStatus(responseEntity.getStatusCode());
+        return responseEntity.getBody();
+      }
+      public String getBooks() {
+        HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
+        ResponseEntity<String> responseEntity = rest.exchange(server1, HttpMethod.GET, requestEntity, String.class);
        // this.setStatus(responseEntity.getStatusCode());
         return responseEntity.getBody();
       }
@@ -43,7 +50,7 @@ public class Runner implements CommandLineRunner {
     public void run(String... args) throws Exception {
         
         System.out.println("Sending message...");
-        rabbitTemplate.convertAndSend(Application.topicExchangeName, "foo.bar.baz", "Hello from Zypher"+get());
+        rabbitTemplate.convertAndSend(Application.topicExchangeName, "foo.bar.baz", "Hello from Zypher"+getPlaces()+"books recommendation is "+getBooks());
         receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
     }
 
