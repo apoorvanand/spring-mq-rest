@@ -18,6 +18,13 @@ public class Application {
 
     static final String queueName = "spring-boot";
 
+ 
+    //static final ConnectionFactory connectionFactory1 = new ConnectionFactory(" ");
+//connectionFactory1.setUsername("imieuxqx");
+//connectionFactory1.setPassword("Zp7C6nagoEsI3TTPbBAZVstPwPU0ytxq");
+
+//Connection connection = connectionFactory1.createConnection();
+
     @Bean
     Queue queue() {
         return new Queue(queueName, false);
@@ -27,6 +34,7 @@ public class Application {
     TopicExchange exchange() {
         return new TopicExchange(topicExchangeName);
     }
+    
 
     @Bean
     Binding binding(Queue queue, TopicExchange exchange) {
@@ -34,7 +42,7 @@ public class Application {
     }
 
     @Bean
-    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
+    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory ,
             MessageListenerAdapter listenerAdapter) {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
