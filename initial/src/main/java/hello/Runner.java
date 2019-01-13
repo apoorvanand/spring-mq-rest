@@ -20,8 +20,11 @@ public class Runner implements CommandLineRunner {
     }
     private final RabbitTemplate rabbitTemplate;
     private final Receiver receiver;
-    private String server = "https://locale-apoorvanand.b542.starter-us-east-2a.openshiftapps.com/search/";
+    private String server = "https://test-zypher.herokuapp.com/onboarding/getusers/";
     private String server1 = "https://www.goodreads.com/book/isbn/0441172717?key=lTgEXm5uzTMM3gI8ZAw";
+    private String server2 = "https://test-zypher.herokuapp.com/onboarding/books/";
+    private String server3 = "https://api.nytimes.com/svc/books/v3/lists.json?";
+
   private RestTemplate rest;
   private HttpHeaders headers;
 
@@ -33,24 +36,39 @@ public class Runner implements CommandLineRunner {
     headers.add("Content-Type", "application/json");
     headers.add("Accept", "*/*");
     }
-    public String getPlaces() {
+    public String getUsers() {
         HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
-        ResponseEntity<String> responseEntity = rest.exchange(server+getRandomIntegerBetweenRange(1,100), HttpMethod.GET, requestEntity, String.class);
+        ResponseEntity<String> responseEntity = rest.exchange(server+getRandomIntegerBetweenRange(1,290), HttpMethod.GET, requestEntity, String.class);
        // this.setStatus(responseEntity.getStatusCode());
         return responseEntity.getBody();
       }
-      public String getBooks() {
+      public String getRecommendation() {
         HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
         ResponseEntity<String> responseEntity = rest.exchange(server1, HttpMethod.GET, requestEntity, String.class);
        // this.setStatus(responseEntity.getStatusCode());
         return responseEntity.getBody();
       }
-
+      public String getBooks() {
+        HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
+        ResponseEntity<String> responseEntity = rest.exchange(server2+getRandomIntegerBetweenRange(1,290), HttpMethod.GET, requestEntity, String.class);
+       // this.setStatus(responseEntity.getStatusCode());
+        return responseEntity.getBody();
+      }
+      public String getTopShelves() {
+       final String[] Genre = {"indigenous-americans","relationships","paperback-business-books","family","hardcover-political-books","race-and-civil-rights","religion-spirituality-and-faith","science","sports","travel" };
+       final Integer r=(int)Math.round(getRandomIntegerBetweenRange(0, Genre.length));
+       final String Key="api-key=53c44062e6e349ffa4302aab0daa9c8a&list=";
+        HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
+        ResponseEntity<String> responseEntity = rest.exchange(server3+Key+Genre[r], HttpMethod.GET, requestEntity, String.class);
+       // this.setStatus(responseEntity.getStatusCode());
+        return responseEntity.getBody();
+      }
+      
     @Override
     public void run(String... args) throws Exception {
         
         System.out.println("Sending message...");
-        rabbitTemplate.convertAndSend(Application.topicExchangeName, "foo.bar.baz", "Hello from Zypher"+getPlaces()+"books recommendation is "+getBooks());
+        rabbitTemplate.convertAndSend(Application.topicExchangeName, "foo.bar.baz", "Hello from SuperPowerBot"+getUsers()+"books recommendation is "+"getRecommendation()"+"Top Books"+getTopShelves()+"Currently Holding"+getBooks());
         receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
     }
 
